@@ -2,10 +2,7 @@ package org.example.app.client;
 
 import org.example.app.commons.CommonUtils;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class Client {
@@ -27,14 +24,16 @@ public class Client {
     }
 
     public static void sendCommandToServer(final String command) {
-        try {
-            Socket socket = new Socket(HOST, PORT);
-            OutputStream socketOutputStream = socket.getOutputStream();
-            var writer = new BufferedWriter(new PrintWriter(socketOutputStream));
+        try (Socket socket = new Socket(HOST, PORT);
+             OutputStreamWriter osw = new OutputStreamWriter(socket.getOutputStream());
+             BufferedWriter writer = new BufferedWriter(osw)) {
+
             writer.write(command);
+            writer.newLine();
             writer.flush();
+
         } catch (IOException e) {
-            throw new RuntimeException();
+            throw new RuntimeException("Error while sending command to the server", e);
         }
     }
 
